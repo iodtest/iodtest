@@ -12,9 +12,9 @@ title                    : "Jiaxin Zhang"
 title_separator          : "-"
 name                     : &name "Jiaxin Zhang"
 description              : &description "personal description"
-url                      : https://zestfuljx.github.io/ # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
-baseurl                  : "" # the subpath of your site, e.g. "/blog"
-repository               : "https://zestfuljx.github.io/"
+url                      : https://iodtest.github.io # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+baseurl                  : "/iodtest" # the subpath of your site, e.g. "/blog"
+repository               : "iodtest/iodtest"
 
 # Site Author - The following control what appear as part of the author content on the side bar.
 #               If a field is blank the icon and link will not appear, otherwise it will be shown.
