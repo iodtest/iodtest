@@ -69,27 +69,36 @@
   var currentStop = TRAVEL_STOPS[0];
   var photoTimer = null;
   var activePhotoIndex = 0;
+  var routeArcs = TRAVEL_STOPS.slice(1).map(function (stop) {
+    return {
+      startLat: TRAVEL_STOPS[0].lat,
+      startLng: TRAVEL_STOPS[0].lng,
+      endLat: stop.lat,
+      endLng: stop.lng
+    };
+  });
 
   var world = Globe()(elements.globe)
     .backgroundColor("rgba(0,0,0,0)")
-    .globeImageUrl("https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg")
+    .globeImageUrl("https://unpkg.com/three-globe/example/img/earth-night.jpg")
     .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png")
     .showAtmosphere(true)
-    .atmosphereColor("#d8f3ff")
-    .atmosphereAltitude(0.16)
+    .atmosphereColor("#8be9ff")
+    .atmosphereAltitude(0.22)
     .pointOfView({ lat: 22, lng: 95, altitude: 2.05 }, 0)
     .pointsData(TRAVEL_STOPS)
     .pointLat("lat")
     .pointLng("lng")
     .pointAltitude(function (stop) {
-      return stop.id === currentStop.id ? 0.09 : 0.045;
+      return stop.id === currentStop.id ? 0.12 : 0.065;
     })
     .pointRadius(function (stop) {
-      return stop.id === currentStop.id ? 0.42 : 0.28;
+      return stop.id === currentStop.id ? 0.5 : 0.32;
     })
     .pointColor(function (stop) {
-      return stop.id === currentStop.id ? "#ffbf47" : "#36d399";
+      return stop.id === currentStop.id ? "#ffd166" : "#63e6be";
     })
+    .pointResolution(28)
     .pointLabel(function (stop) {
       return "<strong>" + stop.country + "</strong><br>" + stop.city;
     })
@@ -98,15 +107,44 @@
     .ringLng("lng")
     .ringColor(function () {
       return function (t) {
-        return "rgba(255, 191, 71, " + (1 - t) + ")";
+        return "rgba(255, 209, 102, " + (1 - t) + ")";
       };
     })
-    .ringMaxRadius(4)
-    .ringPropagationSpeed(1.2)
-    .ringRepeatPeriod(1300)
+    .ringMaxRadius(5)
+    .ringPropagationSpeed(1.45)
+    .ringRepeatPeriod(1100)
+    .arcsData(routeArcs)
+    .arcStartLat("startLat")
+    .arcStartLng("startLng")
+    .arcEndLat("endLat")
+    .arcEndLng("endLng")
+    .arcColor(function () {
+      return ["rgba(99, 230, 190, .12)", "rgba(255, 209, 102, .92)"];
+    })
+    .arcStroke(0.58)
+    .arcAltitude(0.22)
+    .arcDashLength(0.42)
+    .arcDashGap(1.7)
+    .arcDashInitialGap(function (_, index) {
+      return index * 0.8;
+    })
+    .arcDashAnimateTime(3600)
     .onPointClick(function (stop) {
       selectStop(stop);
     });
+
+  if (world.renderer) {
+    world.renderer().setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+  }
+
+  if (world.globeMaterial) {
+    var globeMaterial = world.globeMaterial();
+    globeMaterial.bumpScale = 9;
+    globeMaterial.shininess = 0.35;
+    if (globeMaterial.specular && globeMaterial.specular.set) {
+      globeMaterial.specular.set("#73d2ff");
+    }
+  }
 
   if (world.controls) {
     world.controls().autoRotate = true;
@@ -130,17 +168,17 @@
         })
         .polygonCapColor(function (feature) {
           if (feature.properties.name === currentStop.country) {
-            return "rgba(255, 191, 71, .82)";
+            return "rgba(255, 209, 102, .78)";
           }
           return isVisited(feature, visitedCountries)
-            ? "rgba(54, 211, 153, .55)"
-            : "rgba(184, 214, 181, .34)";
+            ? "rgba(99, 230, 190, .34)"
+            : "rgba(148, 163, 184, .08)";
         })
         .polygonSideColor(function () {
-          return "rgba(6, 32, 44, .28)";
+          return "rgba(6, 32, 44, .18)";
         })
         .polygonStrokeColor(function (feature) {
-          return isVisited(feature, visitedCountries) ? "#fff2cc" : "rgba(255,255,255,.28)";
+          return isVisited(feature, visitedCountries) ? "#fff2cc" : "rgba(255,255,255,.14)";
         })
         .polygonLabel(function (feature) {
           return feature.properties.name;
@@ -187,13 +225,13 @@
     if (world.polygonsData && typeof world.polygonCapColor === "function") {
       world.polygonCapColor(function (feature) {
         if (feature.properties.name === currentStop.country) {
-          return "rgba(255, 191, 71, .86)";
+          return "rgba(255, 209, 102, .82)";
         }
         return TRAVEL_STOPS.some(function (item) {
           return item.country === feature.properties.name;
         })
-          ? "rgba(54, 211, 153, .55)"
-          : "rgba(184, 214, 181, .34)";
+          ? "rgba(99, 230, 190, .34)"
+          : "rgba(148, 163, 184, .08)";
       });
     }
   }

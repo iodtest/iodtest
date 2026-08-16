@@ -1,11 +1,12 @@
 .travel-experience {
-  --travel-ink: #16212f;
-  --travel-muted: #667085;
-  --travel-line: #d8dee8;
-  --travel-panel: #ffffff;
-  --travel-water: #0e4b61;
-  --travel-land: #b8d6b5;
-  --travel-glow: #ffbf47;
+  --travel-ink: #141a24;
+  --travel-muted: #697386;
+  --travel-line: rgba(148, 163, 184, .36);
+  --travel-panel: rgba(255, 255, 255, .94);
+  --travel-water: #071926;
+  --travel-land: #79cdb5;
+  --travel-glow: #ffd166;
+  --travel-coral: #ff6b6b;
   color: var(--travel-ink);
 }
 
@@ -37,14 +38,40 @@
   position: relative;
   min-height: 620px;
   overflow: hidden;
-  border: 1px solid var(--travel-line);
+  border: 1px solid rgba(255, 255, 255, .18);
   border-radius: 8px;
   background:
-    radial-gradient(circle at 50% 45%, rgba(255, 255, 255, .36), rgba(255, 255, 255, 0) 30%),
-    linear-gradient(145deg, #06202c 0%, #123f52 52%, #eef2f7 100%);
+    radial-gradient(circle at 52% 48%, rgba(255, 209, 102, .18), rgba(255, 209, 102, 0) 18%),
+    radial-gradient(circle at 35% 32%, rgba(73, 214, 255, .18), rgba(73, 214, 255, 0) 27%),
+    linear-gradient(145deg, #05070d 0%, #0b1522 46%, #16231f 100%);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, .22);
+}
+
+.travel-globe-shell::before,
+.travel-globe-shell::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.travel-globe-shell::before {
+  opacity: .72;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,.95) 0 1px, transparent 1.4px),
+    radial-gradient(circle, rgba(255,255,255,.55) 0 1px, transparent 1.3px);
+  background-position: 16px 24px, 86px 116px;
+  background-size: 120px 120px, 190px 190px;
+}
+
+.travel-globe-shell::after {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0) 38%, rgba(5, 7, 13, .28) 67%, rgba(5, 7, 13, .72) 100%);
 }
 
 #travel-globe {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: 620px;
 }
@@ -55,6 +82,7 @@
 
 .travel-loading {
   position: absolute;
+  z-index: 2;
   inset: 0;
   display: grid;
   place-items: center;
@@ -68,11 +96,16 @@
   border-radius: 8px;
   background: var(--travel-panel);
   overflow: hidden;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, .11);
+  backdrop-filter: blur(14px);
 }
 
 .travel-panel__header {
   padding: 1rem 1rem .75rem;
   border-bottom: 1px solid var(--travel-line);
+  background:
+    linear-gradient(135deg, rgba(255, 209, 102, .14), rgba(121, 205, 181, .12)),
+    #fff;
 }
 
 .travel-panel__eyebrow {
@@ -128,6 +161,7 @@
   border-radius: 8px;
   background: #101828;
   aspect-ratio: 4 / 3;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
 }
 
 .travel-photo-viewer img {
@@ -186,7 +220,7 @@
 
 .travel-stop-button.is-active {
   border-color: var(--travel-glow);
-  background: #fff8e8;
+  background: linear-gradient(135deg, rgba(255, 209, 102, .18), rgba(121, 205, 181, .14));
 }
 
 .travel-stop-button strong,
