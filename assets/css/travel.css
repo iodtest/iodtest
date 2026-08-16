@@ -8,6 +8,21 @@
   --travel-glow: #ffd166;
   --travel-coral: #ff6b6b;
   color: var(--travel-ink);
+  position: relative;
+  width: min(1180px, calc(100vw - 2rem));
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+.page.travel-page {
+  float: none;
+  width: 100%;
+  padding-right: 0;
+}
+
+.page.travel-page .page__inner-wrap,
+.page.travel-page .page__content {
+  overflow: visible;
 }
 
 .travel-hero {
@@ -29,9 +44,10 @@
 
 .travel-stage {
   display: grid;
-  grid-template-columns: minmax(320px, 1.4fr) minmax(280px, .8fr);
+  grid-template-columns: minmax(360px, 1.55fr) minmax(280px, .75fr);
   gap: 1.25rem;
   align-items: stretch;
+  overflow: visible;
 }
 
 .travel-globe-shell {
@@ -40,19 +56,23 @@
   overflow: visible;
   border: 0;
   border-radius: 0;
-  background: #fff;
+  background: transparent;
   box-shadow: none;
 }
 
 #travel-globe {
   position: relative;
-  width: 100%;
-  height: 680px;
-  margin: -30px 0;
+  left: 50%;
+  width: min(860px, 72vw);
+  height: 720px;
+  margin: -48px 0 -48px;
+  transform: translateX(-50%);
+  background: transparent;
 }
 
 .travel-globe-shell canvas {
   display: block;
+  background: transparent !important;
 }
 
 .travel-loading {
@@ -226,7 +246,8 @@
   }
 
   #travel-globe {
-    margin: -20px 0;
+    width: min(720px, 118vw);
+    margin: -36px 0;
   }
 }
 
