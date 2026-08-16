@@ -36,7 +36,7 @@
       year: "Example stop",
       lat: 1.3521,
       lng: 103.8198,
-      description: "Click a highlighted place to zoom the globe and start the photo flow.",
+      description: "Click a highlighted place or its name to open the travel story.",
       photos: [
         { src: basePath + "/images/500x300.png", caption: "Replace with your Singapore photo" },
         { src: basePath + "/images/foo-bar-identity.jpg", caption: "Another memory" }
@@ -47,12 +47,15 @@
   var elements = {
     globe: document.getElementById("travel-globe"),
     loading: document.querySelector("[data-travel-loading]"),
+    nav: document.querySelector("[data-travel-place-nav]"),
+    strip: document.querySelector("[data-travel-photo-strip]"),
+    detail: document.querySelector("[data-travel-detail]"),
+    close: document.querySelector("[data-travel-close]"),
     country: document.querySelector("[data-travel-country]"),
     city: document.querySelector("[data-travel-city]"),
     year: document.querySelector("[data-travel-year]"),
     description: document.querySelector("[data-travel-description]"),
-    viewer: document.querySelector("[data-travel-photo-viewer]"),
-    list: document.querySelector("[data-travel-stop-list]")
+    viewer: document.querySelector("[data-travel-photo-viewer]")
   };
 
   if (!elements.globe) {
@@ -66,39 +69,29 @@
     return;
   }
 
-  var currentStop = TRAVEL_STOPS[0];
-  var photoTimer = null;
+  var currentStop = null;
+  var detailPhotoTimer = null;
   var activePhotoIndex = 0;
-  var routeArcs = TRAVEL_STOPS.slice(1).map(function (stop) {
-    return {
-      startLat: TRAVEL_STOPS[0].lat,
-      startLng: TRAVEL_STOPS[0].lng,
-      endLat: stop.lat,
-      endLng: stop.lng
-    };
-  });
 
   var world = Globe()(elements.globe)
     .backgroundColor("rgba(0,0,0,0)")
     .globeImageUrl("https://unpkg.com/three-globe/example/img/earth-night.jpg")
     .bumpImageUrl("https://unpkg.com/three-globe/example/img/earth-topology.png")
     .showAtmosphere(true)
-    .atmosphereColor("#8be9ff")
-    .atmosphereAltitude(0.22)
-    .pointOfView({ lat: 18, lng: 95, altitude: 1.72 }, 0)
+    .atmosphereColor("#a6e7ff")
+    .atmosphereAltitude(0.18)
+    .pointOfView({ lat: 20, lng: 95, altitude: 1.85 }, 0)
     .pointsData(TRAVEL_STOPS)
     .pointLat("lat")
     .pointLng("lng")
-    .pointAltitude(function (stop) {
-      return stop.id === currentStop.id ? 0.12 : 0.065;
-    })
+    .pointAltitude(0.045)
     .pointRadius(function (stop) {
-      return stop.id === currentStop.id ? 0.5 : 0.32;
+      return currentStop && stop.id === currentStop.id ? 0.44 : 0.28;
     })
     .pointColor(function (stop) {
-      return stop.id === currentStop.id ? "#ffd166" : "#63e6be";
+      return currentStop && stop.id === currentStop.id ? "#ffd166" : "#7dd3fc";
     })
-    .pointResolution(28)
+    .pointResolution(24)
     .pointLabel(function (stop) {
       return "<strong>" + stop.country + "</strong><br>" + stop.city;
     })
@@ -107,30 +100,14 @@
     .ringLng("lng")
     .ringColor(function () {
       return function (t) {
-        return "rgba(255, 209, 102, " + (1 - t) + ")";
+        return "rgba(255, 209, 102, " + (0.8 - t * 0.8) + ")";
       };
     })
-    .ringMaxRadius(5)
-    .ringPropagationSpeed(1.45)
-    .ringRepeatPeriod(1100)
-    .arcsData(routeArcs)
-    .arcStartLat("startLat")
-    .arcStartLng("startLng")
-    .arcEndLat("endLat")
-    .arcEndLng("endLng")
-    .arcColor(function () {
-      return ["rgba(99, 230, 190, .12)", "rgba(255, 209, 102, .92)"];
-    })
-    .arcStroke(0.58)
-    .arcAltitude(0.22)
-    .arcDashLength(0.42)
-    .arcDashGap(1.7)
-    .arcDashInitialGap(function (_, index) {
-      return index * 0.8;
-    })
-    .arcDashAnimateTime(3600)
+    .ringMaxRadius(3.2)
+    .ringPropagationSpeed(0.9)
+    .ringRepeatPeriod(1700)
     .onPointClick(function (stop) {
-      selectStop(stop);
+      openDetail(stop);
     });
 
   if (world.renderer) {
@@ -139,130 +116,132 @@
 
   if (world.globeMaterial) {
     var globeMaterial = world.globeMaterial();
-    globeMaterial.bumpScale = 9;
-    globeMaterial.shininess = 0.35;
+    globeMaterial.bumpScale = 5;
+    globeMaterial.shininess = 0.2;
     if (globeMaterial.specular && globeMaterial.specular.set) {
-      globeMaterial.specular.set("#73d2ff");
+      globeMaterial.specular.set("#2dd4bf");
     }
   }
 
   if (world.controls) {
     world.controls().autoRotate = true;
-    world.controls().autoRotateSpeed = 0.55;
+    world.controls().autoRotateSpeed = 0.38;
     world.controls().enableDamping = true;
   }
 
-  fetch("https://cdn.jsdelivr.net/gh/holtzy/D3-graph-gallery@master/DATA/world.geojson")
-    .then(function (response) {
-      return response.json();
-    })
-    .then(function (countries) {
-      var visitedCountries = TRAVEL_STOPS.map(function (stop) {
-        return stop.country;
-      });
-
-      world
-        .polygonsData(countries.features)
-        .polygonAltitude(function (feature) {
-          return isVisited(feature, visitedCountries) ? 0.02 : 0.004;
-        })
-        .polygonCapColor(function (feature) {
-          if (feature.properties.name === currentStop.country) {
-            return "rgba(255, 209, 102, .78)";
-          }
-          return isVisited(feature, visitedCountries)
-            ? "rgba(99, 230, 190, .34)"
-            : "rgba(148, 163, 184, .08)";
-        })
-        .polygonSideColor(function () {
-          return "rgba(6, 32, 44, .18)";
-        })
-        .polygonStrokeColor(function (feature) {
-          return isVisited(feature, visitedCountries) ? "#fff2cc" : "rgba(255,255,255,.14)";
-        })
-        .polygonLabel(function (feature) {
-          return feature.properties.name;
-        })
-        .onPolygonClick(function (feature) {
-          var stop = TRAVEL_STOPS.find(function (item) {
-            return item.country === feature.properties.name;
-          });
-          if (stop) {
-            selectStop(stop);
-          }
-        });
-
-      hideLoading();
-    })
-    .catch(function () {
-      hideLoading();
-    });
-
-  buildStopList();
-  selectStop(currentStop);
+  buildPlaceNav();
+  buildPhotoStrip();
+  bindDetailControls();
+  hideLoading();
   window.addEventListener("resize", resizeGlobe);
   resizeGlobe();
 
-  function isVisited(feature, visitedCountries) {
-    return visitedCountries.indexOf(feature.properties.name) !== -1;
+  function buildPlaceNav() {
+    if (!elements.nav) {
+      return;
+    }
+
+    elements.nav.innerHTML = "";
+    TRAVEL_STOPS.forEach(function (stop) {
+      var button = document.createElement("button");
+      button.className = "travel-place-button";
+      button.type = "button";
+      button.setAttribute("data-stop-id", stop.id);
+      button.textContent = stop.country;
+      button.addEventListener("click", function () {
+        openDetail(stop);
+      });
+      elements.nav.appendChild(button);
+    });
   }
 
-  function selectStop(stop) {
+  function buildPhotoStrip() {
+    if (!elements.strip) {
+      return;
+    }
+
+    var photos = [];
+    TRAVEL_STOPS.forEach(function (stop) {
+      (stop.photos || []).forEach(function (photo) {
+        photos.push({
+          src: photo.src,
+          caption: photo.caption || stop.country,
+          country: stop.country
+        });
+      });
+    });
+
+    elements.strip.innerHTML = "";
+    photos.concat(photos).forEach(function (photo) {
+      var figure = document.createElement("figure");
+      figure.className = "travel-strip-photo";
+      figure.innerHTML =
+        '<img src="' + photo.src + '" alt="' + photo.caption + '" loading="lazy">' +
+        '<figcaption>' + photo.country + '</figcaption>';
+      elements.strip.appendChild(figure);
+    });
+  }
+
+  function bindDetailControls() {
+    if (elements.close) {
+      elements.close.addEventListener("click", closeDetail);
+    }
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") {
+        closeDetail();
+      }
+    });
+  }
+
+  function openDetail(stop) {
     currentStop = stop;
     activePhotoIndex = 0;
+
+    updateActivePlaceButton();
+    world.pointsData(TRAVEL_STOPS);
+    world.pointOfView({ lat: stop.lat, lng: stop.lng, altitude: 0.45 }, 1100);
+
+    if (!elements.detail) {
+      return;
+    }
 
     elements.country.textContent = stop.country;
     elements.city.textContent = stop.city;
     elements.year.textContent = stop.year;
     elements.description.textContent = stop.description;
+    renderDetailPhotos(stop.photos || []);
+    elements.detail.classList.add("is-open");
+    elements.detail.setAttribute("aria-hidden", "false");
+  }
 
-    updateActiveStopButton();
-    renderPhotos(stop.photos || []);
-
-    world.pointOfView({ lat: stop.lat, lng: stop.lng, altitude: 0.28 }, 1200);
+  function closeDetail() {
+    currentStop = null;
+    clearInterval(detailPhotoTimer);
+    updateActivePlaceButton();
     world.pointsData(TRAVEL_STOPS);
+    world.pointOfView({ lat: 20, lng: 95, altitude: 1.85 }, 900);
 
-    if (world.polygonsData && typeof world.polygonCapColor === "function") {
-      world.polygonCapColor(function (feature) {
-        if (feature.properties.name === currentStop.country) {
-          return "rgba(255, 209, 102, .82)";
-        }
-        return TRAVEL_STOPS.some(function (item) {
-          return item.country === feature.properties.name;
-        })
-          ? "rgba(99, 230, 190, .34)"
-          : "rgba(148, 163, 184, .08)";
-      });
+    if (elements.detail) {
+      elements.detail.classList.remove("is-open");
+      elements.detail.setAttribute("aria-hidden", "true");
     }
   }
 
-  function buildStopList() {
-    elements.list.innerHTML = "";
-
-    TRAVEL_STOPS.forEach(function (stop) {
-      var button = document.createElement("button");
-      button.className = "travel-stop-button";
-      button.type = "button";
-      button.setAttribute("data-stop-id", stop.id);
-      button.innerHTML = "<strong>" + stop.country + "</strong><span>" + stop.city + "</span>";
-      button.addEventListener("click", function () {
-        selectStop(stop);
-      });
-      elements.list.appendChild(button);
-    });
-  }
-
-  function updateActiveStopButton() {
+  function updateActivePlaceButton() {
     Array.prototype.forEach.call(
-      document.querySelectorAll(".travel-stop-button"),
+      document.querySelectorAll(".travel-place-button"),
       function (button) {
-        button.classList.toggle("is-active", button.getAttribute("data-stop-id") === currentStop.id);
+        button.classList.toggle(
+          "is-active",
+          currentStop && button.getAttribute("data-stop-id") === currentStop.id
+        );
       }
     );
   }
 
-  function renderPhotos(photos) {
-    clearInterval(photoTimer);
+  function renderDetailPhotos(photos) {
+    clearInterval(detailPhotoTimer);
     elements.viewer.innerHTML = "";
 
     if (!photos.length) {
@@ -286,7 +265,7 @@
     caption.textContent = photos[0].caption || currentStop.country;
     elements.viewer.appendChild(caption);
 
-    photoTimer = setInterval(function () {
+    detailPhotoTimer = setInterval(function () {
       activePhotoIndex = (activePhotoIndex + 1) % photos.length;
       var images = elements.viewer.querySelectorAll("img");
 
@@ -295,7 +274,7 @@
       });
 
       caption.textContent = photos[activePhotoIndex].caption || currentStop.country;
-    }, 2400);
+    }, 2600);
   }
 
   function hideLoading() {

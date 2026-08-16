@@ -8,13 +8,10 @@ author_profile: false
 
 <link rel="stylesheet" href="{{ '/assets/css/travel.css' | relative_url }}">
 
-<section class="travel-experience">
+<section class="travel-experience" style="--travel-galaxy-bg: url('{{ '/images/travel/galaxy-bg.png' | relative_url }}') center / cover no-repeat;">
   <div class="travel-hero">
     <h1>Travel Map</h1>
-    <p>
-      A rotating globe for the places we have been. Highlighted countries pulse on the earth;
-      click one to zoom in and let the photos flow.
-    </p>
+    <p>Click a glowing place or its name.</p>
   </div>
 
   <div class="travel-stage">
@@ -23,7 +20,14 @@ author_profile: false
       <div class="travel-loading" data-travel-loading>Loading globe...</div>
     </div>
 
-    <aside class="travel-panel" aria-live="polite">
+    <div class="travel-place-nav" data-travel-place-nav aria-label="Visited places"></div>
+
+    <div class="travel-photo-strip-wrap" aria-hidden="true">
+      <div class="travel-photo-strip" data-travel-photo-strip></div>
+    </div>
+
+    <aside class="travel-detail" data-travel-detail aria-live="polite" aria-hidden="true">
+      <button class="travel-detail__close" type="button" data-travel-close aria-label="Close travel detail">x</button>
       <div class="travel-panel__header">
         <p class="travel-panel__eyebrow">Current stop</p>
         <h2 data-travel-country>Travel</h2>
@@ -43,7 +47,6 @@ author_profile: false
 
         <p class="travel-description" data-travel-description></p>
         <div class="travel-photo-viewer" data-travel-photo-viewer></div>
-        <div class="travel-stop-list" data-travel-stop-list></div>
       </div>
     </aside>
   </div>
