@@ -14,15 +14,12 @@
   transform: translateX(-50%);
 }
 
-.page.travel-page {
-  float: none;
-  width: 100%;
-  padding-right: 0;
-}
-
-.page.travel-page .page__inner-wrap,
-.page.travel-page .page__content {
-  overflow: visible;
+.travel-page-main {
+  position: relative;
+  width: 100vw;
+  margin: 0;
+  overflow-x: hidden;
+  background: #fff;
 }
 
 .travel-hero {
@@ -48,14 +45,14 @@
 
 .travel-stage {
   position: relative;
-  min-height: min(760px, calc(100vh - 150px));
+  min-height: max(720px, calc(100vh - 150px));
   overflow: visible;
 }
 
 .travel-globe-shell {
   position: absolute;
   inset: 0;
-  min-height: min(760px, calc(100vh - 150px));
+  min-height: max(720px, calc(100vh - 150px));
   overflow: visible;
   border: 0;
   border-radius: 0;
@@ -66,8 +63,8 @@
 #travel-globe {
   position: absolute;
   inset: 50% auto auto 50%;
-  width: min(1180px, 115vw);
-  height: min(860px, 92vh);
+  width: min(1320px, 124vw);
+  height: min(960px, 102vh);
   margin: 0;
   transform: translate(-50%, -50%);
   background: transparent;

@@ -1,10 +1,9 @@
 ---
-layout: single
+layout: travel
 permalink: /travel/
 title: "Travel"
 excerpt: "An interactive globe of the places we have visited."
 author_profile: false
-classes: travel-page
 ---
 
 <link rel="stylesheet" href="{{ '/assets/css/travel.css' | relative_url }}">
