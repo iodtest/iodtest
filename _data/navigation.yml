@@ -35,3 +35,5 @@ main:
     url: /#awards
   - title: "Publications"
     url: /#publications
+  - title: "Travel"
+    url: /travel/
