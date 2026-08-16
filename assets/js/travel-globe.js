@@ -85,7 +85,7 @@
     .showAtmosphere(true)
     .atmosphereColor("#8be9ff")
     .atmosphereAltitude(0.22)
-    .pointOfView({ lat: 18, lng: 95, altitude: 2.35 }, 0)
+    .pointOfView({ lat: 18, lng: 95, altitude: 1.72 }, 0)
     .pointsData(TRAVEL_STOPS)
     .pointLat("lat")
     .pointLng("lng")
@@ -219,7 +219,7 @@
     updateActiveStopButton();
     renderPhotos(stop.photos || []);
 
-    world.pointOfView({ lat: stop.lat, lng: stop.lng, altitude: 0.42 }, 1200);
+    world.pointOfView({ lat: stop.lat, lng: stop.lng, altitude: 0.28 }, 1200);
     world.pointsData(TRAVEL_STOPS);
 
     if (world.polygonsData && typeof world.polygonCapColor === "function") {
